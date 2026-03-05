@@ -5,6 +5,7 @@ CONFIG += c++17
 
 SOURCES += \
         calculator.cpp \
+        calculatorcontroller.cpp \
         calculatormodel.cpp \
         main.cpp
 
@@ -15,4 +16,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     calculator.h \
+    calculatorcontroller.h \
     calculatormodel.h

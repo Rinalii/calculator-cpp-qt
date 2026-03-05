@@ -1,8 +1,6 @@
 #ifndef CALCULATOR_H
 #define CALCULATOR_H
 
-#include "calculatormodel.h"
-
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -25,8 +23,6 @@ private:
     QLabel* display;
     QLabel* active_number;
 
-    CalculatorModel model_;
-
     void SetupUI();
 
     void SetupDisplay(QGridLayout* layout);
@@ -34,14 +30,19 @@ private:
     void SetupButtons(QGridLayout* layout);
 
     QPushButton* CreateButton(const QString& str);
+
+signals:
+    void buttonPressed(const QString &text); // Сигнал для контроллера
+
 public slots:
-    void onButtonClicked(const QString& buttonText) {
-        try {
-            CalculatorModel::Display result = model_.PreprocessInput(buttonText);
-            UpdateDisplay(result.expression);
-            UpdateActiveNumber(result.result);
-        } catch (const std::exception& e) {
-            //ShowError(e.what());
+
+    void onButtonClicked() {
+        // Определяем, какая кнопка была нажата
+        QPushButton *button = qobject_cast<QPushButton*>(sender());
+        if (button) {
+            QString text = button->text();
+            // Излучаем сигнал для контроллера
+            emit buttonPressed(text);
         }
     }
 };

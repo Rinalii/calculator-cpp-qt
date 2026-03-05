@@ -126,9 +126,10 @@ QPushButton* Calculator::CreateButton(const QString& str) {
         "   background-color: #00b899;"
         "}"
         );
-    connect(button, &QPushButton::clicked, this, [this, button]() {
-        onButtonClicked(button->text());
-    });
+    connect(button, &QPushButton::clicked, this, &Calculator::onButtonClicked);
+    //connect(button, &QPushButton::clicked, this, [this, button]() {
+    //    onButtonClicked(button->text());
+    //});
     return button;
 }
 
