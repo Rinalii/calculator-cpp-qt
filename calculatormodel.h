@@ -47,6 +47,9 @@ private:
     std::optional<UOperator> StringToUOperator(const std::string& input) const;
     std::string BOperatorToString() const;
 
+    static std::string DoubleToString(double value);
+    static double StringToDouble(const std::string& str);
+
 };
 
 #endif // CALCULATORMODEL_H

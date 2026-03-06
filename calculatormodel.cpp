@@ -38,6 +38,42 @@ std::string CalculatorModel::BOperatorToString() const {
     }
 }
 
+std::string CalculatorModel::DoubleToString(double value) {
+    std::string str = std::to_string(value);
+
+    // Удаляем trailing zeros
+    str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+    // Удаляем точку, если она осталась последней
+    if (str.back() == '.') {
+        str.pop_back();
+    }
+
+    return str;
+}
+
+double CalculatorModel::StringToDouble(const std::string &str) {
+    try {
+        size_t pos;
+        double result = std::stod(str, &pos);
+
+        // Проверяем, что вся строка была преобразована
+        if (pos == str.length()) {
+            return result;
+        }
+        // Если после числа есть пробелы - считаем успехом
+        while (pos < str.length() && std::isspace(str[pos])) {
+            pos++;
+        }
+        if (pos == str.length()) {
+            return result;
+        }
+        return 0; // Есть непробельные символы после числа
+    }
+    catch (const std::exception&) {
+        return 0;
+    }
+}
+
 double CalculatorModel::ApplyOperator(double left, double right, BOperator op) const {
     switch(op) {
     case BOperator::Add:
@@ -105,7 +141,7 @@ CalculatorModel::Display CalculatorModel::ProcessNumberOrDot(const std::string &
         result.expression = prev_num_ + BOperatorToString();
         result.result = active_num_;
     } else {
-        result.expression = active_num_;
+        result.expression = "";
         result.result = active_num_;
     }
     return result;
@@ -118,14 +154,25 @@ CalculatorModel::Display CalculatorModel::ProcessEquality(const std::string &inp
     }
 
     //calculate
-    double left = std::stod(prev_num_);
-    double right = std::stod(active_num_);
-    double res = ApplyOperator(left, right, operator_);
-    result.expression = prev_num_ + BOperatorToString() + active_num_ + input;
-    result.result = std::to_string(res);
+    if(operator_ != BOperator::None) {
+        double left = StringToDouble(prev_num_);
+        double right = 0;
+        if(active_num_.empty()) {
+            right = left;
+        } else {
+            right = StringToDouble(active_num_);
+        }
+        double res = ApplyOperator(left, right, operator_);
+        result.expression = prev_num_ + BOperatorToString() + active_num_ + input;
+        result.result = DoubleToString(res);
+    } else {
+        result.expression = active_num_ + input;
+        result.result = active_num_;
+    }
+
     Clear();
-    prev_num_ = std::to_string(res);
-    //active_num_ = std::to_string(res);
+    prev_num_ = result.result;
+
     return result;
 }
 
@@ -139,16 +186,15 @@ CalculatorModel::Display CalculatorModel::ProcessUOperator(const std::string &in
     if(IsActiveNumberEmpty()) {
         active_num_ = prev_num_;
     }
-    double right = std::stod(active_num_);
+    double right = StringToDouble(active_num_);
     double res = ApplyOperator(right, *u_op);
-    active_num_ = std::to_string(res);
+    active_num_ = DoubleToString(res);
     if(IsSignInMiddle()) {
         result.expression = prev_num_ + BOperatorToString() + active_num_;
-        result.result = std::to_string(res);
     } else {
         result.expression = active_num_;
-        result.result = std::to_string(res);
     }
+    result.result = DoubleToString(res);
     return result;
 
 }
@@ -163,14 +209,14 @@ CalculatorModel::Display CalculatorModel::ProcessBOperator(const std::string &in
 
     if(IsSignInMiddle()) {
         //calculate
-        double left = std::stod(prev_num_);
-        double right = std::stod(active_num_);
+        double left = StringToDouble(prev_num_);
+        double right = StringToDouble(active_num_);
         double res = ApplyOperator(left, right, operator_);
-        result.expression = std::to_string(res) + input;
-        result.result = std::to_string(res);
+        result.expression = DoubleToString(res) + input;
+        result.result = DoubleToString(res);
         Clear();
         operator_ = *b_op;
-        prev_num_ = std::to_string(res);
+        prev_num_ = DoubleToString(res);
     } else {
         if(prev_num_.empty()) {
             ActiveNumberToPrev(*b_op);
