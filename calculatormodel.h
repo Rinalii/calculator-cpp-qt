@@ -34,6 +34,9 @@ private:
     Display ProcessNumberOrDot(const std::string& input);
     Display ProcessAC(const std::string& input);
 
+    void ProcessPercent();
+    void ProcessSignChange();
+
     void ActiveNumberToPrev(BOperator b_op = BOperator::None);
     void Clear();
     void SetPrevNum(const std::string& str);

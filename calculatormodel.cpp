@@ -2,6 +2,33 @@
 
 CalculatorModel::CalculatorModel() {}
 
+void CalculatorModel::ProcessPercent() {
+    double left = StringToDouble(prev_num_);
+    double right = StringToDouble(active_num_);
+    if(operator_==BOperator::Add || operator_==BOperator::Subtract) {
+        double tmp = left/100. * right;
+        active_num_ = DoubleToString(tmp);
+    } else if(operator_==BOperator::Multiply || operator_==BOperator::Divide) {
+        double tmp = right/100.;
+        active_num_ = DoubleToString(tmp);
+    } else {
+        active_num_ = "";
+    }
+}
+
+void CalculatorModel::ProcessSignChange() {
+    if(active_num_.empty()) {
+        if(prev_num_.empty()) return;
+        active_num_ = prev_num_;
+    }
+
+    if(active_num_[0] == '-') {
+        active_num_ = active_num_.substr(1);
+    } else {
+        active_num_ = '-' + active_num_;
+    }
+}
+
 void CalculatorModel::ActiveNumberToPrev(BOperator b_op) {
     prev_num_=active_num_;
     active_num_.clear();
@@ -183,20 +210,23 @@ CalculatorModel::Display CalculatorModel::ProcessUOperator(const std::string &in
         return ProcessUnknownOperator();
     }
 
-    if(IsActiveNumberEmpty()) {
-        active_num_ = prev_num_;
+    switch(*u_op) {
+    case UOperator::ChangeSign:
+        ProcessSignChange();
+        break;
+    case UOperator::Percent:
+        ProcessPercent();
+        break;
+    default: throw std::runtime_error("Unknown operator");
     }
-    double right = StringToDouble(active_num_);
-    double res = ApplyOperator(right, *u_op);
-    active_num_ = DoubleToString(res);
+
     if(IsSignInMiddle()) {
         result.expression = prev_num_ + BOperatorToString() + active_num_;
     } else {
         result.expression = active_num_;
     }
-    result.result = DoubleToString(res);
+    result.result = active_num_;
     return result;
-
 }
 
 CalculatorModel::Display CalculatorModel::ProcessBOperator(const std::string &input) {
@@ -231,11 +261,11 @@ CalculatorModel::Display CalculatorModel::ProcessBOperator(const std::string &in
 }
 
 CalculatorModel::Display CalculatorModel::ProcessInput(const std::string &input) {
-    if(input.find_first_of("+-/*") != std::string::npos) {
-        return ProcessBOperator(input);
-    }
     if(input == "+/-" || input == "%") {
         return ProcessUOperator(input);
+    }
+    if(input.find_first_of("+-/*") != std::string::npos) {
+        return ProcessBOperator(input);
     }
     if(input == "=") {
         return ProcessEquality(input);
