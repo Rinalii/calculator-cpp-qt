@@ -25,8 +25,8 @@ private:
 
     void SetupUI();
 
-    void SetupDisplay(QGridLayout* layout);
-    void SetupActiveNumber(QGridLayout* layout);
+    void SetupDisplay(QVBoxLayout* v_layout);
+    void SetupActiveNumber(QVBoxLayout* v_layout);
     void SetupButtons(QGridLayout* layout);
 
     QPushButton* CreateButton(const QString& str);

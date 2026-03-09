@@ -9,6 +9,7 @@
 
 Calculator::Calculator() {
     SetupUI();
+    setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void Calculator::UpdateDisplay(const QString &text) {
@@ -37,16 +38,51 @@ void Calculator::ClearActiveNumber() {
 
 void Calculator::SetupUI()
 {
-    QGridLayout* layout = new QGridLayout();
+    setStyleSheet(
+        "QWidget {"
+        "   background-color: #262626;"
+        "}"
+        );
 
-    SetupDisplay(layout);
-    SetupActiveNumber(layout);
+    QVBoxLayout* v_layout = new QVBoxLayout();
+    v_layout->setContentsMargins(0, 0, 0, 0);
+    v_layout->setSpacing(0);
+
+    // Контейнер для дисплеев с отступами
+    QWidget* displayContainer = new QWidget();
+
+    QVBoxLayout* displayLayout = new QVBoxLayout(displayContainer);
+    displayLayout->setContentsMargins(10, 10, 10, 10);
+    displayLayout->setSpacing(5);
+
+    // Создаем дисплеи без собственных отступов
+    SetupDisplay(displayLayout);      // display без отступов
+    SetupActiveNumber(displayLayout); // active_number без отступов
+
+    v_layout->addWidget(displayContainer, 2); // Добавляем контейнер с дисплеями
+
+    // Контейнер для кнопок
+    QWidget* buttonContainer = new QWidget();
+    buttonContainer->setStyleSheet(
+        "QWidget {"
+        "   background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+        "                               stop: 0 #ff4444, stop: 1 #800080);"
+        "   border-top-left-radius: 20px;"
+        "   border-top-right-radius: 20px;"
+        "}"
+        );
+
+    QGridLayout* layout = new QGridLayout(buttonContainer);
+    layout->setSpacing(1);
+    layout->setContentsMargins(10, 10, 10, 10);
+
     SetupButtons(layout);
+    v_layout->addWidget(buttonContainer, 5);
 
-    setLayout(layout);
+    setLayout(v_layout);
 }
 
-void Calculator::SetupDisplay(QGridLayout* layout) {
+void Calculator::SetupDisplay(QVBoxLayout *v_layout) {
     // Create display
     display = new QLabel("");
     display->setMinimumSize(241, 31);
@@ -63,9 +99,10 @@ void Calculator::SetupDisplay(QGridLayout* layout) {
         );
     display->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    layout->addWidget(display, 0, 0, 1, 4);
+    v_layout->addWidget(display, 1);
 }
-void Calculator::SetupActiveNumber(QGridLayout* layout) {
+
+void Calculator::SetupActiveNumber(QVBoxLayout *v_layout) {
     // Create display
     active_number = new QLabel("0");
     active_number->setMinimumSize(241, 61);
@@ -82,7 +119,7 @@ void Calculator::SetupActiveNumber(QGridLayout* layout) {
         );
     active_number->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    layout->addWidget(active_number, 1, 0, 1, 4);
+    v_layout->addWidget(active_number, 1);
 }
 
 void Calculator::SetupButtons(QGridLayout* layout) {
@@ -115,17 +152,19 @@ QPushButton* Calculator::CreateButton(const QString& str) {
 
     button->setStyleSheet(
         "QPushButton {"
-        "   border: 1px solid #262626;"
-        "   background-color: #363636;"
-        "   color: white;"
+        "   background: rgba(255, 255, 255, 70);"
+        "   border-radius: 10px;"
+        "   border: none;"
         "}"
         "QPushButton:hover {"
-        "   background-color: #454545;"
+        "   background: rgba(255, 255, 255, 90);"
         "}"
         "QPushButton:pressed {"
-        "   background-color: #00b899;"
+        "   background: rgba(255, 255, 255, 90);"
         "}"
         );
+
+
     connect(button, &QPushButton::clicked, this, &Calculator::onButtonClicked);
     //connect(button, &QPushButton::clicked, this, [this, button]() {
     //    onButtonClicked(button->text());
