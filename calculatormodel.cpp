@@ -48,7 +48,7 @@ void CalculatorModel::SetPrevNum(const std::string &str) {
 }
 
 bool CalculatorModel::IsSignInMiddle() const {
-    return !prev_num_.empty() && !active_num_.empty();
+    return operator_ != BOperator::None && !prev_num_.empty() && !active_num_.empty();
 }
 
 bool CalculatorModel::IsActiveNumberEmpty() const {
@@ -244,7 +244,7 @@ CalculatorModel::Display CalculatorModel::ProcessBOperator(const std::string &in
             operator_ = *b_op;
             prev_num_ = DoubleToString(res);
         } else {
-            if(prev_num_.empty()) {
+            if(!active_num_.empty()) {
                 ActiveNumberToPrev(*b_op);
             } else {
                 operator_ = *b_op;
