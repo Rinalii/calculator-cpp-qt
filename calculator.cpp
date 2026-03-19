@@ -9,7 +9,7 @@
 
 Calculator::Calculator() {
     SetupUI();
-    setAttribute(Qt::WA_DeleteOnClose);
+    //setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void Calculator::UpdateDisplay(const QString &text) {
